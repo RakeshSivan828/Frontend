@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AgriShield Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      overflow: hidden;
+    }
+    header {
+      background: #2e7d32;
+      color: #fff;
+      padding: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 60px;
+    }
+    .header-content {
+      display: flex;
+      align-items: center;
+      width: 100%;
+      max-width: 1200px;
+      padding: 0 20px;
+      justify-content: space-between;
+    }
+    .profile-icon {
+      position: relative;
+      cursor: pointer;
+    }
+    .profile-icon img {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      border: 1.8px solid #fff;
+      object-fit: contain;
+    }
+    #profileDetails {
+      display: none;
+      position: absolute;
+      top: 36px;
+      left: -10px;
+      width: 220px;
+      background: #fff;
+      color: #333;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+      padding: 15px;
+      z-index: 1500;
+      user-select: none;
+    }
+    #profileDetails h4 {
+      margin: 0 0 8px 0;
+      color: #388e3c;
+    }
+    .dashboard-title {
+      font-weight: bold;
+      font-size: 22px;
+      letter-spacing: 1px;
+      color: #fff;
+      background: #43a047;
+      padding: 8px 32px;
+      border-radius: 16px;
+      box-shadow: 0 2px 8px rgba(34,139,34,0.15);
+      user-select: none;
+    }
+    .header-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    button {
+      cursor: pointer;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 6px;
+      font-weight: bold;
+      font-size: 14px;
+      color: #fff;
+      transition: background 0.3s;
+    }
+    .alerts-btn {
+      background: orange;
+    }
+    .alerts-btn:hover {
+      background: darkorange;
+    }
+    .logout-btn {
+      background: red;
+    }
+    .logout-btn:hover {
+      background: darkred;
+    }
+    .container {
+      display: flex;
+      height: calc(100vh - 80px);
+      gap: 16px;
+      padding: 90px 18px 0 18px;
+      box-sizing: border-box;
+    }
+    .left, .right {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .left { flex: 3; }
+    .right { flex: 1; }
+
+    .card {
+      background: #fff;
+      padding: 18px;
+      border-radius: 18px;
+      box-shadow: 0 4px 16px rgba(34,139,34,0.08);
+      display: flex;
+      flex-direction: column;
+      margin-bottom: 0;
+    }
+    .card h3 {
+      margin: 0 0 8px 0;
+      font-size: 1.10rem;
+    }
+
+    /* Weather Forecast Subdivisions */
+    .forecast-subdiv {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      margin-top: 10px;
+      flex: 1;
+    }
+    .forecast-box {
+      flex: 1;
+      background: linear-gradient(135deg,#b9eab2 60%,#ffffe7 100%);
+      padding: 37px 10px 32px 10px;
+      border-radius: 14px;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 500;
+      color: #1b4b1b;
+      box-shadow: 0 2px 14px rgba(67,160,71,0.06);
+      border: 2px solid #e7fbe8;
+      transition: box-shadow 0.18s;
+      min-height:120px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+    .forecast-box strong {
+      font-size: 1.1rem;
+    }
+    .forecast-box:hover {
+      box-shadow: 0 8px 26px rgba(67,160,71,0.21);
+      background: linear-gradient(135deg,#ffffe7 20%, #b9eab2 100%);
+    }
+
+    /* Current Conditions */
+    .conditions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 13px;
+      margin-top: 10px;
+      flex: 1;
+    }
+    .condition-box {
+      background: #cceedf;
+      padding: 24px 0;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: bold;
+      font-size: 18px;
+      border: 1.5px solid #e8fffe;
+      transition: background 0.1s;
+      min-height: 50px;
+    }
+    .condition-box:hover {
+      background: #a5e3dd;
+    }
+
+    /* Chatbot & Notifications */
+    .chatbot {
+      flex: 2;
+      background: #fff;
+      padding: 15px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+    }
+    .chatbot div {
+      flex: 1;
+      overflow-y: auto;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      padding: 7px;
+      margin-bottom: 5px;
+      background: #f9f9f9;
+    }
+    .chatbot input[type=text] {
+      width: calc(100% - 65px);
+      padding: 9px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      font-size: 15px;
+      margin-top: 2px;
+    }
+    .chatbot button.send {
+      padding: 8px 20px;
+      background: #2e7d32;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 6px;
+      font-size: 15px;
+      font-weight: bold;
+    }
+    .notifications {
+      flex: 0.8;
+      background: #ffe0b2;
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    /* Hide scrollbars */
+    * { scrollbar-width: none; -ms-overflow-style: none;}
+    *::-webkit-scrollbar { width:0; height:0;}
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-content">
+      <div class="profile-icon" id="profileBtn">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile Icon" />
+        <div id="profileDetails">
+          <h4>User Profile</h4>
+          <p><strong>Name:</strong> <span id="profileName">Loading...</span></p>
+          <p><strong>Email:</strong> <span id="profileEmail">Loading...</span></p>
+          <p><strong>Role:</strong> <span id="profileRole">Loading...</span></p>
+        </div>
+      </div>
+      <div class="dashboard-title">
+        🌾 AgriShield Dashboard
+      </div>
+      <div class="header-buttons">
+        <button class="alerts-btn" onclick="alert('Alerts clicked!')">Alerts</button>
+        <button class="logout-btn" id="logoutBtn">Logout</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="container">
+    <!-- Left Column -->
+    <div class="left">
+      <!-- Weather Forecast -->
+      <div class="card" style="flex: 1;">
+        <h3>🌤️ Weather Forecast</h3>
+        <div class="forecast-subdiv">
+          <div class="forecast-box">
+            <strong>Last 3 Days</strong><br>Loading...
+          </div>
+          <div class="forecast-box">
+            <strong>Today</strong><br>Loading...
+          </div>
+          <div class="forecast-box">
+            <strong>Tomorrow Prediction</strong><br>Loading...
+          </div>
+        </div>
+      </div>
+      <!-- Current Conditions -->
+      <div class="card" style="flex: 1;">
+        <h3>🌱 Current Conditions</h3>
+        <div class="conditions-grid">
+          <div class="condition-box">🌡️ <b>Temp: -- °C</b></div>
+          <div class="condition-box">💧 <b>Humidity: -- %</b></div>
+          <div class="condition-box">💨 <b>Wind Speed: -- m/s</b></div>
+          <div class="condition-box">🧭 <b>Wind Dir: -- °</b></div>
+        </div>
+      </div>
+    </div>
+    <!-- Right Column -->
+    <div class="right">
+      <!-- Chatbot -->
+      <div class="chatbot card">
+        <h3>💬 Chatbot</h3>
+        <div>Chatbot coming soon...</div>
+        <input type="text" placeholder="Ask about climate..." />
+        <button class="send">Send</button>
+      </div>
+      <!-- Notifications -->
+      <div class="notifications card">
+        <h3>📌 Notifications</h3>
+        <p>No alerts yet...</p>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Example user data - replace with real user details after login
+    const loggedInUser = {
+      name: "Alice Smith",
+      email: "alice.smith@example.com",
+      role: "Farmer"
+    };
+
+    // Populate profile details dynamically
+    document.getElementById('profileName').textContent = loggedInUser.name;
+    document.getElementById('profileEmail').textContent = loggedInUser.email;
+    document.getElementById('profileRole').textContent = loggedInUser.role;
+
+    // Profile details toggle
+    const profileBtn = document.getElementById('profileBtn');
+    const profileDetails = document.getElementById('profileDetails');
+
+    profileBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      profileDetails.style.display = profileDetails.style.display === 'block' ? 'none' : 'block';
+    });
+
+    // Hide profile when clicking outside
+    document.addEventListener('click', function() {
+      profileDetails.style.display = 'none';
+    });
+
+    // Logout redirect to main.html
+    document.getElementById('logoutBtn').addEventListener('click', function() {
+      window.location.href = 'main.html';
+    });
+  </script>
+</body>
+</html>
